@@ -1,23 +1,22 @@
 //?Instructions
-//?Tally the results of a small football competition.
+//?Implement a simple shift cipher like Caesar and a more secure substitution cipher.
 //?
-//?Based on an input file containing which team played against which and what the outcome was, create a file with a table like this:
+//?Step 1
+//?"If he had anything confidential to say, he wrote it in cipher, that is, by so changing the order of the letters of the alphabet, that not a word could be made out. If anyone wishes to decipher these, and get at their meaning, he must substitute the fourth letter of the alphabet, namely D, for A, and so with the others." —Suetonius, Life of Julius Caesar
 //?
-//?Team                           | MP |  W |  D |  L |  P
-//?Devastating Donkeys            |  3 |  2 |  1 |  0 |  7
-//?Allegoric Alaskans             |  3 |  2 |  0 |  1 |  6
-//?Blithering Badgers             |  3 |  1 |  0 |  2 |  3
-//?Courageous Californians        |  3 |  0 |  1 |  2 |  1
-//?What do those abbreviations mean?
+//?Ciphers are very straight-forward algorithms that allow us to render text less readable while still allowing easy deciphering. They are vulnerable to many forms of cryptanalysis, but we are lucky that generally our little sisters are not cryptanalysts.
 //?
-//?MP: Matches Played
-//?W: Matches Won
-//?D: Matches Drawn (Tied)
-//?L: Matches Lost
-//?P: Points
-//?A win earns a team 3 points. A draw earns 1. A loss earns 0.
+//?The Caesar Cipher was used for some messages from Julius Caesar that were sent afield. Now Caesar knew that the cipher wasn't very good, but he had one ally in that respect: almost nobody could read well. So even being a couple letters off was sufficient so that people couldn't recognize the few words that they did know.
 //?
-//?The outcome should be ordered by points, descending. In case of a tie, teams are ordered alphabetically.
+//?Your task is to create a simple shift cipher like the Caesar Cipher. This image is a great example of the Caesar Cipher:
+//?
+//?Caesar Cipher
+//?
+//?For example:
+//?
+//?Giving "iamapandabear" as input to the encode function returns the cipher "ldpdsdqgdehdu". Obscure enough to keep our message secret in transit.
+//?
+//?When "ldpdsdqgdehdu" is put into the decode function it would return the original "iamapandabear" letting your friend read your original message.
 <?php
 
 /*
@@ -42,86 +41,92 @@
  * To disable strict typing, comment out the directive below.
  */
 
+
 declare(strict_types=1);
 
-class Tournament
+class SimpleCipher
+{
+    public $key;
+
+    public function __construct(string $key = null)
     {
-        public $MP = [];
-        public $W = [];
-        public $D = [];
-        public $L = [];
-        public $P = [];
-        public $equipos;
-        public function __construct($scores){
-            $this->equipos = explode(";", $scores);
+        if ($key === null) {
+            $key = $this->generateRandomKey();
+        } else {
+            $this->validateKey($key);
+        }
 
-        }
-        public function asignacionPuntos(){
-            foreach ($this->equipos as $key => $value) {
-                if($key%3 == 2){
-                    switch ($this->equipos[$key]) {
-                        case 'win':
-                            $nombreEquipo = $this->equipos[$key-2];
-                            $nombreEquipo2 = $this->equipos[$key-1];
-                            ($this->W[$nombreEquipo] ?? null) ? $this->W[$nombreEquipo] += 1 : $this->W[$nombreEquipo] = 1;
-                            ($this->L[$nombreEquipo2] ?? null) ? $this->L[$nombreEquipo2] += 1 : $this->L[$nombreEquipo2] = 1;
-                            ($this->P[$nombreEquipo] ?? null) ? $this->P[$nombreEquipo] += 3 : $this->P[$nombreEquipo] = 3;
-                            break;
-                        case 'draw':
-                            $nombreEquipo = $this->equipos[$key-2];
-                            $nombreEquipo2 = $this->equipos[$key-1];
-                            ($this->D[$nombreEquipo] ?? null) ? $this->D[$nombreEquipo] += 1 : $this->D[$nombreEquipo] = 1;
-                            ($this->D[$nombreEquipo2] ?? null) ? $this->D[$nombreEquipo2] += 1 : $this->D[$nombreEquipo2] = 1;
+        $this->key = $key;
+    }
 
-                            ($this->P[$nombreEquipo] ?? null) ? $this->P[$nombreEquipo] += 1 : $this->P[$nombreEquipo] = 1;
-                            ($this->P[$nombreEquipo2] ?? null) ? $this->P[$nombreEquipo2] += 1 : $this->P[$nombreEquipo2] = 1;
-                            break;
-                        case 'loss':
-                            $nombreEquipo = $this->equipos[$key-1];
-                            $nombreEquipo2 = $this->equipos[$key-2];
-                            ($this->W[$nombreEquipo] ?? null) ? $this->W[$nombreEquipo] += 1 : $this->W[$nombreEquipo] = 1;
-                            ($this->L[$nombreEquipo2] ?? null) ? $this->L[$nombreEquipo2] += 1 : $this->L[$nombreEquipo2] = 1;
-                            ($this->P[$nombreEquipo] ?? null) ? $this->P[$nombreEquipo] += 3 : $this->P[$nombreEquipo] = 3;
-                            break;
-                    }
-                }else{
-                    ($this->MP[$this->equipos[$key]] ?? null) ? $this->MP[$this->equipos[$key]] += 1 : $this->MP[$this->equipos[$key]] = 1;
-                }
-            }
+    public function encode(string $plainText): string
+    {
+        $plainText = $this->normalizeText($plainText);
+        $key = $this->getKeyForText($plainText);
+
+        $cipherText = '';
+        $length = strlen($plainText);
+        for ($i = 0; $i < $length; $i++) {
+            $shift = ord($key[$i]) - ord('a');
+            $cipherChar = chr((ord($plainText[$i]) - ord('a') + $shift) % 26 + ord('a'));
+            $cipherText .= $cipherChar;
         }
-        public function validarEquipos(){
-            $equiposFaltantesW = array_diff_key($this->MP, $this->W);
-            foreach ($equiposFaltantesW as $key => $value) {
-                $this->W[$key] = 0;
-            }
-            $equiposFaltantesD = array_diff_key($this->MP, $this->D);
-            foreach ($equiposFaltantesD as $key => $value) {
-                $this->D[$key] = 0;
-            }
-            $equiposFaltantesL = array_diff_key($this->MP, $this->L);
-            foreach ($equiposFaltantesL as $key => $value) {
-                $this->L[$key] = 0;
-            }
-            $equiposFaltantesP = array_diff_key($this->MP, $this->P);
-            foreach ($equiposFaltantesP as $key => $value) {
-                $this->P[$key] = 0;
-            }
+
+        return $cipherText;
+    }
+
+    public function decode(string $cipherText): string
+    {
+        $cipherText = $this->normalizeText($cipherText);
+        $key = $this->getKeyForText($cipherText);
+
+        $plainText = '';
+        $length = strlen($cipherText);
+        for ($i = 0; $i < $length; $i++) {
+            $shift = ord($key[$i]) - ord('a');
+            $plainChar = chr((ord($cipherText[$i]) - ord('a') - $shift + 26) % 26 + ord('a'));
+            $plainText .= $plainChar;
         }
-        public function tablaResultados(){
-            echo "        Team                  | MP | W  | D  | L  | P  |\n  ";
-            echo "---------------------------------------------------\n";
-            foreach ($this->MP as $equipo => $partidosJugados){
-                echo str_pad($equipo, 30)."| ";
-                echo str_pad(strval($partidosJugados), 3)."| ";
-                echo str_pad(($this->W[strval([$equipo]) ?? 0),3)."| ";
-                echo str_pad(($this->D[$equipo] ?? 0),3)."| ";
-                echo str_pad(($this->L[$equipo] ?? 0),3)."| ";
-                echo str_pad(($this->P[$equipo] ?? 0),3)."| "."\n";
-            }
+
+        return $plainText;
+    }
+
+    private function generateRandomKey(): string
+    {
+        $characters = 'abcdefghijklmnopqrstuvwxyz';
+        $key = '';
+        $length = mt_rand(100, 200); // Generate a key with length between 100 and 200 characters
+        $charactersLength = strlen($characters);
+        for ($i = 0; $i < $length; $i++) {
+            $key .= $characters[mt_rand(0, $charactersLength - 1)];
+        }
+
+        return $key;
+    }
+
+    private function validateKey(string $key): void
+    {
+        if (!preg_match('/^[a-z]+$/', $key)) {
+            throw new InvalidArgumentException('Invalid key. Only lowercase letters are allowed.');
         }
     }
-    $obj = new Tournament("Allegoric Alaskans;Blithering Badgers;win;Devastating Donkeys;Courageous Californians;draw;Devastating Donkeys;Allegoric Alaskans;win;Courageous Californians;Blithering Badgers;loss;Blithering Badgers;Devastating Donkeys;loss;Allegoric Alaskans;Courageous Californians;win");
 
-    $obj->asignacionPuntos();
-    $obj->validarEquipos();
-    $obj->tablaResultados();
+    private function normalizeText(string $text): string
+    {
+        return preg_replace('/[^a-z]+/', '', strtolower($text));
+    }
+
+    private function getKeyForText(string $text): string
+    {
+        $keyLength = strlen($this->key);
+        $textLength = strlen($text);
+
+        // If the key is shorter than the text, repeat the key to match the text length
+        if ($keyLength < $textLength) {
+            $repeatedKey = str_repeat($this->key, (int) ceil($textLength / $keyLength));
+            $this->key = substr($repeatedKey, 0, $textLength);
+        }
+
+        return $this->key;
+    }
+}
