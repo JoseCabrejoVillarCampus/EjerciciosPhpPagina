@@ -1,49 +1,53 @@
-//?//?Instructions
-//?Bob is a lackadaisical teenager. In conversation, his responses are very limited.
+//?Introduction
+//?You work for a bioengineering company that specializes in developing therapeutic solutions.
 //?
-//?Bob answers 'Sure.' if you ask him a question, such as "How are you?".
+//?Your team has just been given a new project to develop a targeted therapy for a rare type of cancer.
 //?
-//?He answers 'Whoa, chill out!' if you YELL AT HIM (in all capitals).
+//?Note
+//?It's all very complicated, but the basic idea is that sometimes people's bodies produce too much of a given protein. That can cause all sorts of havoc.
 //?
-//?He answers 'Calm down, I know what I'm doing!' if you yell a question at him.
+//?But if you can create a very specific molecule (called a micro-RNA), it can prevent the protein from being produced.
 //?
-//?He says 'Fine. Be that way!' if you address him without actually saying anything.
+//?This technique is called RNA Interference.
 //?
-//?He answers 'Whatever.' to anything else.
+//?Instructions
+//?Your task is determine the RNA complement of a given DNA sequence.
 //?
-//?Bob's conversational partner is a purist when it comes to written communication and always follows normal rules regarding sentence punctuation in English.
+//?Both DNA and RNA strands are a sequence of nucleotides.
 //?
-//?The commented tests at the bottom of the bob_test.php are Stretch Goals, they are optional. They may be easier to solve if you are using the mb_string functions, which aren't installed by default with every version of PHP.
+//?The four nucleotides found in DNA are adenine (A), cytosine (C), guanine (G) and thymine (T).
+//?
+//?The four nucleotides found in RNA are adenine (A), cytosine (C), guanine (G) and uracil (U).
+//?
+//?Given a DNA strand, its transcribed RNA strand is formed by replacing each nucleotide with its complement:
+//?
+//?G -> C
+//?C -> G
+//?T -> A
+//?A -> U
 <?php
     //values for example
     declare(strict_types=1);
-    class Bob
-{
-    public function respondTo(string $str): string
-    {
-        $str = trim($str);
 
-        if (empty($str)) {
-            return "Fine. Be that way!";
-        } elseif ($this->isQuestion($str) && $this->isYelling($str)) {
-            return "Calm down, I know what I'm doing!";
-        } elseif ($this->isQuestion($str)) {
-            return "Sure.";
-        } elseif ($this->isYelling($str)) {
-            return "Whoa, chill out!";
+    function toRna(string $dna): string
+        {
+            $rna = '';
+            for ($i = 0; $i < strlen($dna); $i++) {
+                switch ($dna[$i]) {
+                    case 'G':
+                        $rna .= 'C';
+                        break;
+                    case 'C':
+                        $rna .= 'G';
+                        break;
+                    case 'T':
+                        $rna .= 'A';
+                        break;
+                    case 'A':
+                        $rna .= 'U';
+                        break;
+                }
+            }
+            return $rna;
         }
 
-        return "Whatever.";
-    }
-
-    private function isQuestion(string $str): bool
-    {
-        return substr($str, -1) === "?";
-    }
-
-    private function isYelling(string $str): bool
-    {
-        return $str === strtoupper($str) && preg_match("/[a-zA-Z]/", $str);
-    }
-}
-?>
