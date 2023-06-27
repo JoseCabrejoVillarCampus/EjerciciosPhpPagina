@@ -1,40 +1,49 @@
-//?Instructions
-//?Your task is to build a high-score component of the classic Frogger game, one of the highest selling and addictive games of all time, and a classic of the arcade era. Your task is to write methods that return the highest score from the list, the last added score and the three highest scores.
+//?//?Instructions
+//?Bob is a lackadaisical teenager. In conversation, his responses are very limited.
 //?
+//?Bob answers 'Sure.' if you ask him a question, such as "How are you?".
+//?
+//?He answers 'Whoa, chill out!' if you YELL AT HIM (in all capitals).
+//?
+//?He answers 'Calm down, I know what I'm doing!' if you yell a question at him.
+//?
+//?He says 'Fine. Be that way!' if you address him without actually saying anything.
+//?
+//?He answers 'Whatever.' to anything else.
+//?
+//?Bob's conversational partner is a purist when it comes to written communication and always follows normal rules regarding sentence punctuation in English.
+//?
+//?The commented tests at the bottom of the bob_test.php are Stretch Goals, they are optional. They may be easier to solve if you are using the mb_string functions, which aren't installed by default with every version of PHP.
 <?php
-
-/*
- * By adding type hints and enabling strict type checking, code can become
- * easier to read, self-documenting and reduce the number of potential bugs.
- * By default, type declarations are non-strict, which means they will attempt
- * to change the original type to match the type specified by the
- * type-declaration.
- *
- * In other words, if you pass a string to a function requiring a float,
- * it will attempt to convert the string value to a float.
- *
- * To enable strict mode, a single declare directive must be placed at the top
- * of the file.
- * This means that the strictness of typing is configured on a per-file basis.
- * This directive not only affects the type declarations of parameters, but also
- * a function's return type.
- *
- * For more info review the Concept on strict type checking in the PHP track
- * <link>.
- *
- * To disable strict typing, comment out the directive below.
- */
-
-declare(strict_types=1);
-
-class HighScores
+    //values for example
+    declare(strict_types=1);
+    class Bob
 {
-    public function __construct(array $scores)
+    public function respondTo(string $str): string
     {
-        $this->scores = $scores;
-        $this->latest = end($scores);
-        $this->personalBest = max($scores);
-        rsort($scores);
-        $this->personalTopThree = array_slice($scores, 0, 3);
+        $str = trim($str);
+
+        if (empty($str)) {
+            return "Fine. Be that way!";
+        } elseif ($this->isQuestion($str) && $this->isYelling($str)) {
+            return "Calm down, I know what I'm doing!";
+        } elseif ($this->isQuestion($str)) {
+            return "Sure.";
+        } elseif ($this->isYelling($str)) {
+            return "Whoa, chill out!";
+        }
+
+        return "Whatever.";
+    }
+
+    private function isQuestion(string $str): bool
+    {
+        return substr($str, -1) === "?";
+    }
+
+    private function isYelling(string $str): bool
+    {
+        return $str === strtoupper($str) && preg_match("/[a-zA-Z]/", $str);
     }
 }
+?>
