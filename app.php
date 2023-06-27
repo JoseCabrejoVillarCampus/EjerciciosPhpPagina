@@ -1,21 +1,11 @@
-//?Instructions
-//?Calculate the Hamming Distance between two DNA strands.
+//?Introduction
+//?The way we measure time is kind of messy. We have 60 seconds in a minute, and 60 minutes in an hour. This comes from ancient Babylon, where they used 60 as the basis for their number system. We have 24 hours in a day, 7 days in a week, and how many days in a month? Well, for days in a month it depends not only on which month it is, but also on what type of calendar is used in the country you live in.
 //?
-//?Your body is made up of cells that contain DNA. Those cells regularly wear out and need replacing, which they achieve by dividing into daughter cells. In fact, the average human body experiences about 10 quadrillion cell divisions in a lifetime!
+//?What if, instead, we only use seconds to express time intervals? Then we can use metric system prefixes for writing large numbers of seconds in more easily comprehensible quantities.
 //?
-//?When cells divide, their DNA replicates too. Sometimes during this process mistakes happen and single pieces of DNA get encoded with the incorrect information. If we compare two strands of DNA and count the differences between them we can see how many mistakes occurred. This is known as the "Hamming Distance".
-//?
-//?We read DNA using the letters C,A,G and T. Two strands might look like this:
-//?
-//?GAGCCTACTAACGGGAT
-//?CATCGTAATGACGGCCT
-//?^ ^ ^ ^ ^ ^^
-//?They have 7 differences, and therefore the Hamming Distance is 7.
-//?
-//?The Hamming Distance is useful for lots of things in science, not just biology, so it's a nice phrase to be familiar with :
-//?
-//?The Hamming distance is only defined for sequences of equal length, so an attempt to calculate it between sequences of different lengths should not work. The general handling of this situation (e.g., raising an exception vs returning a special value) may differ between languages.
-//?
+//?A food recipe might explain that you need to let the brownies cook in the oven for two kiloseconds (that's two thousand seconds).
+//?Perhaps you and your family would travel to somewhere exotic for two megaseconds (that's two million seconds).
+//?And if you and your spouse were married for a thousand million seconds, you would celebrate your one gigasecond anniversary.
 <?php
 
 /*
@@ -42,21 +32,11 @@
 
 declare(strict_types=1);
 
-function distance(string $strandA, string $strandB): int
+function from(DateTimeImmutable $date): DateTimeImmutable
 {
-    if (strlen($strandA) !== strlen($strandB)) {
-        throw new \InvalidArgumentException("DNA strands must be of equal length.");
-    }
-
-    $distance = 0;
-    $length = strlen($strandA);
-
-    for ($i = 0; $i < $length; $i++) {
-        if ($strandA[$i] !== $strandB[$i]) {
-            $distance++;
-        }
-    }
-
-    return $distance;
+    $gigaSecond = new DateInterval('PT1000000000S');
+    $futureDate = $date->add($gigaSecond);
+    
+    return $futureDate;
 }
 ?>
